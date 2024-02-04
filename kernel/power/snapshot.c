@@ -1237,7 +1237,7 @@ int create_basic_memory_bitmaps(void)
 void free_basic_memory_bitmaps(void)
 {
 	struct memory_bitmap *bm1, *bm2;
-
+	pr_info("In free_basic_memory_bitmaps\n");
 	if (WARN_ON(!(forbidden_pages_map && free_pages_map)))
 		return;
 

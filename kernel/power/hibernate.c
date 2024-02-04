@@ -787,26 +787,35 @@ int hibernate(void)
 
 	pr_info("hibernation entry\n");
 	pm_prepare_console();
+	pr_info("After prepare_console\n");
 	error = pm_notifier_call_chain_robust(PM_HIBERNATION_PREPARE, PM_POST_HIBERNATION);
+	pr_info("After pm_notifier_call_chain_robust, err is %d\n", error);
 	if (error)
 		goto Restore;
 
-	ksys_sync_helper();
+	pr_info("Before ksys_sync_helper\n");
 
+	ksys_sync_helper();
+	pr_info("Before freeze_processes\n");
 	error = freeze_processes();
+	pr_info("After freeze_processes, err is %dd\n", error);
 	if (error)
 		goto Exit;
 
+	pr_info("Before lock_device_hotplug\n");
 	lock_device_hotplug();
 	/* Allocate memory management structures */
+	pr_info("After lock_device_hotplug\n");
 	error = create_basic_memory_bitmaps();
+	pr_info("After create_basic_memory_bitmaps, err is %d\n", error);
 	if (error)
 		goto Thaw;
-
+	pr_info("Before hibernation_snapshot\n");
 	error = hibernation_snapshot(hibernation_mode == HIBERNATION_PLATFORM);
+	pr_info("After hibernation_snapshot, err is %d\n", error);
 	if (error || freezer_test_done)
 		goto Free_bitmaps;
-
+	pr_info("in_suspend is %d\n", in_suspend);
 	if (in_suspend) {
 		unsigned int flags = 0;
 
@@ -833,9 +842,12 @@ int hibernate(void)
 	}
 
  Free_bitmaps:
+	pr_info("Before free_basic_memory_bitmaps\n");
 	free_basic_memory_bitmaps();
+	pr_info("After free_basic_memory_bitmaps\n");
  Thaw:
 	unlock_device_hotplug();
+	pr_info("After unlock_device_hotplug\n");
 	if (snapshot_test) {
 		pm_pr_dbg("Checking hibernation image\n");
 		error = swsusp_check();

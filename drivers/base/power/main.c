@@ -20,6 +20,7 @@
 #include <linux/device.h>
 #include <linux/export.h>
 #include <linux/mutex.h>
+#include <linux/kernel.h>
 #include <linux/pm.h>
 #include <linux/pm_runtime.h>
 #include <linux/pm-trace.h>
@@ -1001,45 +1002,66 @@ void dpm_resume(pm_message_t state)
 {
 	struct device *dev;
 	ktime_t starttime = ktime_get();
-
+	printk("PM: !!! In dpm_resume, start\n");
 	trace_suspend_resume(TPS("dpm_resume"), state.event, true);
+	printk("PM: !!! In dpm_resume, before might_sleep\n");
 	might_sleep();
-
+	printk("PM: !!! In dpm_resume, before mutex_lock\n");
 	mutex_lock(&dpm_list_mtx);
 	pm_transition = state;
 	async_error = 0;
-
+	printk("PM: !!! In dpm_resume, before list_for_each_entry\n");
 	list_for_each_entry(dev, &dpm_suspended_list, power.entry)
 		dpm_async_fn(dev, async_resume);
-
+	printk("PM: !!! In dpm_resume, before loop\n");
+	int i = 0;
 	while (!list_empty(&dpm_suspended_list)) {
+		i++;
+		printk("PM: !!! In dpm_resume loop, loop %d\n", i);
+		printk("PM: !!! In dpm_resume loop, before to_device\n");
 		dev = to_device(dpm_suspended_list.next);
+		printk("PM: !!! In dpm_resume loop, before get_device\n");
 		get_device(dev);
 		if (!is_async(dev)) {
 			int error;
 
 			mutex_unlock(&dpm_list_mtx);
-
+			printk("PM: !!! In dpm_resume loop, before device_resume\n");
 			error = device_resume(dev, state, false);
+			printk("PM: !!! In dpm_resume loop, err is %d\n", error);
 			if (error) {
 				suspend_stats.failed_resume++;
 				dpm_save_failed_step(SUSPEND_RESUME);
+				printk("PM: !!! In dpm_resume loop, after dpm_save_failed_step\n");
 				dpm_save_failed_dev(dev_name(dev));
+				printk("PM: !!! In dpm_resume loop, after dpm_save_failed_dev\n");
 				pm_dev_err(dev, state, "", error);
+				printk("PM: !!! In dpm_resume loop, after pm_dev_err\n");
 			}
 
 			mutex_lock(&dpm_list_mtx);
 		}
+		printk("PM: !!! In dpm_resume loop, after first test\n");
 		if (!list_empty(&dev->power.entry))
+		{
 			list_move_tail(&dev->power.entry, &dpm_prepared_list);
+			printk("PM: !!! In dpm_resume loop, after list_move_tail\n");
+		}
 		put_device(dev);
+		printk("PM: !!! In dpm_resume loop, after put_device\n");
 	}
+	printk("PM: !!! In dpm_resume, after loop\n");
 	mutex_unlock(&dpm_list_mtx);
+	printk("PM: !!! In dpm_resume, before async_synchronize_full\n");
 	async_synchronize_full();
+	printk("PM: !!! In dpm_resume, before dpm_show_time\n");
 	dpm_show_time(starttime, state, 0, NULL);
 
+	printk("PM: !!! In dpm_resume, before cpufreq_resume\n");
 	cpufreq_resume();
+	printk("PM: !!! In dpm_resume, before devfreq_resume\n");
 	devfreq_resume();
+	printk("PM: !!! In dpm_resume, before trace_suspend_resume\n");
 	trace_suspend_resume(TPS("dpm_resume"), state.event, false);
 }
 

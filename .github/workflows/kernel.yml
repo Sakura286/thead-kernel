@@ -25,8 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: [thead-gcc, gcc-13]
-        board: [lpi4a, ahead]
+        name: [gcc-13]
+        board: [lpi4a]
 
     runs-on: ubuntu-22.04
     env:

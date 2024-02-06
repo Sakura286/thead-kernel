@@ -371,40 +371,52 @@ static int create_image(int platform_mode)
 	in_suspend = 1;
 	save_processor_state();
 	trace_suspend_resume(TPS("machine_suspend"), PM_EVENT_HIBERNATE, true);
+	pr_info("!!! before swsusp_arch_suspend\n");
 	error = swsusp_arch_suspend();
+	pr_info("!!! before restore_processor_state\n");
 	/* Restore control flow magically appears here */
 	restore_processor_state();
+	pr_info("!!! After restore_processor_state\n");
 	trace_suspend_resume(TPS("machine_suspend"), PM_EVENT_HIBERNATE, false);
 	if (error)
 		pr_err("Error %d creating image\n", error);
-
+	pr_info("!!! After trace_suspend_resume\n");
 	if (!in_suspend) {
 		events_check_enabled = false;
 		clear_or_poison_free_pages();
+		pr_info("!!! After clear_or_poison_free_pages\n");
 	}
+	pr_info("!!! After After clear_or_poison_free_pages\n");
 
 	platform_leave(platform_mode);
 
  Power_up:
+	pr_info("!!! In create_image, Before syscore_resume\n");
 	syscore_resume();
+	pr_info("!!! In create_image, After syscore_resume\n");
 
  Enable_irqs:
 	system_state = SYSTEM_RUNNING;
+	pr_info("!!! In create_image, Before local_irq_enable\n");
 	local_irq_enable();
+	pr_info("!!! In create_image, After local_irq_enable\n");
 
  Enable_cpus:
+    pr_info("!!! In create_image, Before suspend_enable_secondary_cpus\n");
 	suspend_enable_secondary_cpus();
+	pr_info("!!! In create_image, After suspend_enable_secondary_cpus\n");
 
 	/* Allow architectures to do nosmt-specific post-resume dances */
 	if (!in_suspend)
 		error = arch_resume_nosmt();
 
  Platform_finish:
+	pr_info("!!! In create_image, Before platform_finish\n");
 	platform_finish(platform_mode);
-
+	pr_info("!!! In create_image, Before dpm_resume_start\n");
 	dpm_resume_start(in_suspend ?
 		(error ? PMSG_RECOVER : PMSG_THAW) : PMSG_RESTORE);
-
+	pr_info("!!! In create_image, dpm_resume_start\n");
 	return error;
 }
 

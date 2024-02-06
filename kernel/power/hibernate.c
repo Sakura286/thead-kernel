@@ -416,7 +416,7 @@ static int create_image(int platform_mode)
 	pr_info("!!! In create_image, Before dpm_resume_start\n");
 	dpm_resume_start(in_suspend ?
 		(error ? PMSG_RECOVER : PMSG_THAW) : PMSG_RESTORE);
-	pr_info("!!! In create_image, dpm_resume_start\n");
+	pr_info("!!! In create_image, after dpm_resume_start\n");
 	return error;
 }
 
@@ -470,7 +470,7 @@ int hibernation_snapshot(int platform_mode)
 		platform_recover(platform_mode);
 	else
 		error = create_image(platform_mode);
-
+	pr_info("In hibernation_snapshot, after create_image\n");
 	/*
 	 * In the case that we call create_image() above, the control
 	 * returns here (1) after the image has been created or the
@@ -478,20 +478,31 @@ int hibernation_snapshot(int platform_mode)
 	 */
 
 	/* We may need to release the preallocated image pages here. */
+	
 	if (error || !in_suspend)
+	{	
+		pr_info("In hibernation_snapshot, before swsusp_free\n");
 		swsusp_free();
-
+	}
+	
 	msg = in_suspend ? (error ? PMSG_RECOVER : PMSG_THAW) : PMSG_RESTORE;
+	pr_info("In hibernation_snapshot, before dpm_resume\n");
 	dpm_resume(msg);
-
+    pr_info("In hibernation_snapshot, after dpm_resume\n");
 	if (error || !in_suspend)
+	{
+		pr_info("In hibernation_snapshot, before pm_restore_gfp_mask\n");
 		pm_restore_gfp_mask();
+	}
 
 	resume_console();
+	pr_info("In hibernation_snapshot, before dpm_complete\n");
 	dpm_complete(msg);
 
  Close:
+	pr_info("In hibernation_snapshot, before platform_end\n");
 	platform_end(platform_mode);
+	pr_info("In hibernation_snapshot, after platform_end, err is %d\n", error);
 	return error;
 
  Thaw:

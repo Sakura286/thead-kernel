@@ -1001,6 +1001,7 @@ static void async_resume(void *data, async_cookie_t cookie)
 void dpm_resume(pm_message_t state)
 {
 	struct device *dev;
+	log_suspend_abort_reason("PM: !!! In dpm_resume, initial\n");
 	ktime_t starttime = ktime_get();
 	printk("PM: !!! In dpm_resume, start\n");
 	trace_suspend_resume(TPS("dpm_resume"), state.event, true);

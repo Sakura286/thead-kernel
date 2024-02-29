@@ -67,6 +67,7 @@ struct thead_dwmac_priv_data {
 /* set GMAC PHY interface, 0:MII/GMII, 1:RGMII, 4:RMII */
 static void thead_dwmac_set_phy_if(struct plat_stmmacenet_data *plat_dat)
 {
+	dump_stack();
 	struct thead_dwmac_priv_data *thead_plat_dat = plat_dat->bsp_priv;
 	void __iomem *phy_if_reg = thead_plat_dat->phy_if_reg;
 	phy_interface_t interface = thead_plat_dat->interface;
@@ -104,7 +105,7 @@ static void thead_dwmac_set_phy_if(struct plat_stmmacenet_data *plat_dat)
 	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, after readl.\n");
 	//This reg defined bit not related to devid
 	reg &= ~(DWMAC_PHYIF_MASK );
-	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, after destoryed.\n");
+	dev_info(dev,"In light.c,  , after destoryed.\n");
 	reg |= (phyif & DWMAC_PHYIF_MASK) ;
 	dev_info(dev,"set phy_if_reg val 0x%x \n",reg);
 	writel(reg, phy_if_reg);

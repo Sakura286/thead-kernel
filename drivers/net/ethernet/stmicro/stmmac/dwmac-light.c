@@ -6,6 +6,7 @@
 #include <linux/of_net.h>
 #include <linux/platform_device.h>
 #include <linux/pm_runtime.h>
+#include <linux/ptrace.h>
 
 #include "stmmac_platform.h"
 
@@ -70,6 +71,7 @@ static void thead_dwmac_set_phy_if(struct plat_stmmacenet_data *plat_dat)
 	void __iomem *phy_if_reg = thead_plat_dat->phy_if_reg;
 	phy_interface_t interface = thead_plat_dat->interface;
 	struct device *dev = thead_plat_dat->dev;
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, start\n");
 	//int devid = thead_plat_dat->id;
 	unsigned int phyif = PHY_INTERFACE_MODE_MII;
 	uint32_t reg;
@@ -667,12 +669,13 @@ int thead_dwmac_clk_enable(struct platform_device *pdev, void *bsp_priv)
 
 int thead_dwmac_clk_init(struct platform_device *pdev, void *bsp_priv)
 {
+	dump_stack();
 	struct thead_dwmac_priv_data *thead_plat_dat = bsp_priv;
 	struct device *dev = &pdev->dev;
+	dev_info(dev,"In light.c, thead_dwmac_clk_init, start.\n");
 	struct plat_stmmacenet_data *plat_dat = thead_plat_dat->plat_dat;
 	int ret = 0;
 	pm_debug(dev,"enter %s()\n",__func__);
-
 	thead_dwmac_set_phy_if(plat_dat);
 	thead_dwmac_set_txclk_dir(plat_dat);
 

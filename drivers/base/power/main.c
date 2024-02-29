@@ -1018,38 +1018,38 @@ void dpm_resume(pm_message_t state)
 	int i = 0;
 	while (!list_empty(&dpm_suspended_list)) {
 		i++;
-		printk("PM: !!! In dpm_resume loop, loop %d\n", i);
-		printk("PM: !!! In dpm_resume loop, before to_device\n");
+		//printk("PM: !!! In dpm_resume loop, loop %d\n", i);
+		//printk("PM: !!! In dpm_resume loop, before to_device\n");
 		dev = to_device(dpm_suspended_list.next);
-		printk("PM: !!! In dpm_resume loop, before get_device\n");
+		//printk("PM: !!! In dpm_resume loop, before get_device\n");
 		get_device(dev);
 		if (!is_async(dev)) {
 			int error;
 
 			mutex_unlock(&dpm_list_mtx);
-			printk("PM: !!! In dpm_resume loop, before device_resume\n");
+			//printk("PM: !!! In dpm_resume loop, before device_resume\n");
 			error = device_resume(dev, state, false);
-			printk("PM: !!! In dpm_resume loop, err is %d\n", error);
+			//printk("PM: !!! In dpm_resume loop, err is %d\n", error);
 			if (error) {
 				suspend_stats.failed_resume++;
 				dpm_save_failed_step(SUSPEND_RESUME);
-				printk("PM: !!! In dpm_resume loop, after dpm_save_failed_step\n");
+				//printk("PM: !!! In dpm_resume loop, after dpm_save_failed_step\n");
 				dpm_save_failed_dev(dev_name(dev));
-				printk("PM: !!! In dpm_resume loop, after dpm_save_failed_dev\n");
+				//printk("PM: !!! In dpm_resume loop, after dpm_save_failed_dev\n");
 				pm_dev_err(dev, state, "", error);
-				printk("PM: !!! In dpm_resume loop, after pm_dev_err\n");
+				//printk("PM: !!! In dpm_resume loop, after pm_dev_err\n");
 			}
 
 			mutex_lock(&dpm_list_mtx);
 		}
-		printk("PM: !!! In dpm_resume loop, after first test\n");
+		//printk("PM: !!! In dpm_resume loop, after first test\n");
 		if (!list_empty(&dev->power.entry))
 		{
 			list_move_tail(&dev->power.entry, &dpm_prepared_list);
-			printk("PM: !!! In dpm_resume loop, after list_move_tail\n");
+			//printk("PM: !!! In dpm_resume loop, after list_move_tail\n");
 		}
 		put_device(dev);
-		printk("PM: !!! In dpm_resume loop, after put_device\n");
+		//printk("PM: !!! In dpm_resume loop, after put_device\n");
 	}
 	printk("PM: !!! In dpm_resume, after loop\n");
 	mutex_unlock(&dpm_list_mtx);

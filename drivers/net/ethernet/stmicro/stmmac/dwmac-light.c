@@ -78,7 +78,7 @@ static void thead_dwmac_set_phy_if(struct plat_stmmacenet_data *plat_dat)
 
 	if (phy_if_reg == NULL)
 		return;
-
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, interface is %d\n", interface);
 	switch (interface)
 	{
 	case PHY_INTERFACE_MODE_MII:
@@ -98,13 +98,17 @@ static void thead_dwmac_set_phy_if(struct plat_stmmacenet_data *plat_dat)
 		dev_err(dev, "phy interface %d not supported\n", interface);
 		return;
 	};
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, phyif is %d\n", phyif);
 
 	reg = readl(phy_if_reg);
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, after readl.\n");
 	//This reg defined bit not related to devid
 	reg &= ~(DWMAC_PHYIF_MASK );
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, after destoryed.\n");
 	reg |= (phyif & DWMAC_PHYIF_MASK) ;
 	dev_info(dev,"set phy_if_reg val 0x%x \n",reg);
 	writel(reg, phy_if_reg);
+	dev_info(dev,"In light.c, thead_dwmac_set_phy_if, end.\n");
 }
 
 /*
